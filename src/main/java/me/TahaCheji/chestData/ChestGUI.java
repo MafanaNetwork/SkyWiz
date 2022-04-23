@@ -13,13 +13,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ChestGUI  implements Listener {
@@ -50,26 +48,6 @@ public class ChestGUI  implements Listener {
         newmeta.setDisplayName(ChatColor.GRAY + " ");
         newmeta.setLore(lore);
         greystainedglass.setItemMeta(newmeta);
-
-        if (rarity == ChestRarity.NORMAL) {
-            for (ItemStack item : new NormalItems().getNormalItems()) {
-                int slot = getRandomEmptySlot(gui.getInventory());
-                gui.setItem(slot, new GuiItem(item));
-            }
-        }
-        if (rarity == ChestRarity.EPIC) {
-            for (ItemStack item : new EpicItems().getEpicItems()) {
-                int slot = getRandomEmptySlot(gui.getInventory());
-                gui.setItem(slot, new GuiItem(item));
-            }
-        }
-        if (rarity == ChestRarity.PLAYER_BOOST) {
-            for (ItemStack item : new PlayerBoostItems().getPlayerBoostItems()) {
-                int slot = getRandomEmptySlot(gui.getInventory());
-                gui.setItem(slot, new GuiItem(item));
-            }
-        }
-
         gui.setItem(0, new GuiItem(greystainedglass));
         gui.setItem(1, new GuiItem(greystainedglass));
         gui.setItem(2, new GuiItem(greystainedglass));
@@ -98,16 +76,37 @@ public class ChestGUI  implements Listener {
         gui.setItem(49, new GuiItem(greystainedglass));
         gui.setItem(6, 3, new GuiItem(greystainedglass));
         gui.setItem(6, 7, new GuiItem(greystainedglass));
+        if (rarity == ChestRarity.NORMAL) {
+            fill(gui, new NormalItems().getNormalItems());
+        }
+        if (rarity == ChestRarity.EPIC) {
+            fill(gui, new EpicItems().getEpicItems());
+        }
+        if (rarity == ChestRarity.PLAYER_BOOST) {
+            fill(gui, new PlayerBoostItems().getPlayerBoostItems());
+        }
         this.gui = gui;
-        Main.getChestGui().put(chest, this);
+        Main.getChestGui().put(chest, gui.getInventory());
         return gui;
     }
 
-    private int getRandomEmptySlot(Inventory inventory) {
-        int slot = ThreadLocalRandom.current().nextInt(inventory.getSize());
-        return inventory.getItem(slot) == null || inventory.getItem(slot).getType().equals(Material.AIR)
-                        ? slot
-                        : getRandomEmptySlot(inventory);
+    public void fill(PaginatedGui inventory, List<LootItem> lootItem) {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        Set<LootItem> used = new HashSet<>();
+
+        for(int slotIndex = 0; slotIndex < inventory.getInventory().getSize(); slotIndex++) {
+            if(inventory.getGuiItem(slotIndex) != null) {
+                continue;
+            }
+            LootItem randomItem = lootItem.get(random.nextInt(lootItem.size()));
+            if(used.contains(randomItem)) continue;
+            used.add(randomItem);
+
+            if(randomItem.shouldFill(random)) {
+                ItemStack itemStack = randomItem.getItemStack(random);
+                inventory.setItem(slotIndex, new GuiItem(itemStack));
+            }
+        }
     }
 
     @EventHandler

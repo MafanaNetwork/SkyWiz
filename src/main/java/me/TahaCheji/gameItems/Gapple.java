@@ -21,7 +21,7 @@ public class Gapple extends MasterItems {
 
 
     public Gapple() {
-        super(null, "Gapple", Material.YELLOW_DYE, ItemType.SPELL, RarityType.GOLD, true, new MasterAbility("Heal", AbilityType.RIGHT_CLICK, 0, 0, "Right click to heal 5 hearts"), true, "");
+        super(null, "Gapple", Material.YELLOW_DYE, ItemType.SPELL, RarityType.GOLD, true, new MasterAbility("Heal", AbilityType.RIGHT_CLICK, 2, 0, "Right click to heal 5 hearts"), true, "");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class Gapple extends MasterItems {
     public boolean rightClickAirAction(Player player, ItemStack var2) {
         GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
         CoolDown coolDown = new CoolDown(this, Main.getInstance().getPlayer(player));
-        if(coolDown.ifCanUse()) {
+        if(coolDown.ifCanUse(this)) {
             return false;
         }
         coolDown.addPlayerToCoolDown();

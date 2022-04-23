@@ -16,6 +16,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
@@ -40,8 +41,8 @@ public final class Main extends JavaPlugin {
     public static Map<String, MasterItems> items = new HashMap();
     public static Map<Integer, MasterItems> itemIDs = new HashMap();
     public static List<MasterItems> allItems = new ArrayList<>();
-    private static HashMap<Chest, ChestGUI> chestGameGui = new HashMap<>();
-    private static HashMap<GamePlayer, CoolDown> coolDownHashMap = new HashMap<>();
+    private static HashMap<Chest, Inventory> chestGameGui = new HashMap<>();
+    private static HashMap<MasterItems, CoolDown> coolDownHashMap = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -51,6 +52,7 @@ public final class Main extends JavaPlugin {
             try {
                 Listener listener = (Listener) clazz.getDeclaredConstructor().newInstance();
                 getServer().getPluginManager().registerEvents(listener, this);
+                System.out.println(clazz.getName());
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -110,7 +112,7 @@ public final class Main extends JavaPlugin {
         itemIDs.put(item.getUUID(), item);
     }
 
-    public static HashMap<GamePlayer, CoolDown> getCoolDownHashMap() {
+    public static HashMap<MasterItems, CoolDown> getCoolDownHashMap() {
         return coolDownHashMap;
     }
 
@@ -130,7 +132,7 @@ public final class Main extends JavaPlugin {
         activeGames.remove(game);
     }
 
-    public static HashMap<Chest, ChestGUI> getChestGui() {
+    public static HashMap<Chest, Inventory> getChestGui() {
         return chestGameGui;
     }
 

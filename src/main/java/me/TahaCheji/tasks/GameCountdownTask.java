@@ -7,7 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameCountdownTask extends BukkitRunnable {
 
-    private int time = 20;
+    private int time = 15;
     private Game game;
     GameRunTask gameRunTask;
 

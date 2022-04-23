@@ -29,7 +29,7 @@ public class Earthquake extends MasterItems {
 
     public Earthquake() {
         super(null, "Earthquake", Material.BROWN_DYE, ItemType.SPELL, RarityType.LAPIS, true,
-                new MasterAbility("One With The Earth", AbilityType.RIGHT_CLICK, 0, 18, "Right Click to create a Earthquake"), true, "Rumble ruble ruble");
+                new MasterAbility("One With The Earth", AbilityType.RIGHT_CLICK, 5, 18, "Right Click to create a Earthquake"), true, "Rumble ruble ruble");
     }
 
     @Override
@@ -51,7 +51,7 @@ public class Earthquake extends MasterItems {
     public boolean rightClickAirAction(Player player, ItemStack var2) {
         GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
         CoolDown coolDown = new CoolDown(this, Main.getInstance().getPlayer(player));
-        if(coolDown.ifCanUse()) {
+        if(coolDown.ifCanUse(this)) {
             return false;
         }
         coolDown.addPlayerToCoolDown();

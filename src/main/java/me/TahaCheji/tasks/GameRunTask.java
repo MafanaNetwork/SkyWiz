@@ -12,7 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class GameRunTask extends BukkitRunnable {
 
     private Game game;
-    private int startIn = 25;
+    private int startIn = 10;
     ActiveGameTask gameTask;
 
     public GameRunTask(Game game) {

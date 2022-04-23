@@ -3,6 +3,7 @@ package me.TahaCheji.gameData;
 
 import me.TahaCheji.Main;
 import me.TahaCheji.chestData.EpicItems;
+import me.TahaCheji.chestData.LootItem;
 import me.TahaCheji.chestData.NormalItems;
 import me.TahaCheji.chestData.PlayerBoostItems;
 import me.TahaCheji.lobbyData.Lobby;
@@ -64,7 +65,7 @@ public class Game implements GameManager {
 
     @Override
     public void playerJoin(GamePlayer gamePlayer) {
-        if (isState(GameState.LOBBY) || isState(GameState.STARTING) || isState(GameState.ACTIVE)) {
+        if (isState(GameState.LOBBY) || isState(GameState.ACTIVE)) {
             if (activePlayers.size() == 4) {
                 gamePlayer.sendMessage(ChatColor.GOLD + "[Game Manager] " + "Error: This game is active.");
                 return;
@@ -120,6 +121,13 @@ public class Game implements GameManager {
 
     @Override
     public void end() {
+        if (inGameScoreBoard != null) {
+            inGameScoreBoard.stopUpdating();
+        }
+        if(gameCountdownTask != null) {
+            gameCountdownTask.getGameRunTask().getGameTask().setGameTimer(getGameTime());
+            gameCountdownTask.getGameRunTask().getGameTask().cancel();
+        }
         for(GamePlayer gamePlayer : players) {
             Player player = gamePlayer.getPlayer();
             player.sendMessage(ChatColor.GOLD + "[Game Manager] " + "Game has ended");
@@ -234,15 +242,15 @@ public class Game implements GameManager {
         return opened;
     }
 
-    public List<ItemStack> getNormalItems() {
+    public List<LootItem> getNormalItems() {
         return new NormalItems().getNormalItems();
     }
 
-    public List<ItemStack> getEpicItems() {
+    public List<LootItem> getEpicItems() {
        return new EpicItems().getEpicItems();
     }
 
-    public List<ItemStack> getPlayerBoostItems() {
+    public List<LootItem> getPlayerBoostItems() {
         return new PlayerBoostItems().getPlayerBoostItems();
     }
 

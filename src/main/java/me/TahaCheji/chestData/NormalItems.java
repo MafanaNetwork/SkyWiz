@@ -1,5 +1,6 @@
 package me.TahaCheji.chestData;
 
+import me.TahaCheji.gameItems.Gapple;
 import me.TahaCheji.gameItems.ShadowWarp;
 import me.TahaCheji.gameItems.WandOfRespiration;
 import org.bukkit.Material;
@@ -12,27 +13,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class NormalItems {
 
-    public List<ItemStack> getNormalItems () {
-        List<ItemStack> itemStacks = new ArrayList<>();
-        itemStacks.add(new ItemStack(Material.OAK_PLANKS, 32));
-        itemStacks.add(new ItemStack(Material.STONE, 16));
-        int random = ThreadLocalRandom.current().nextInt(6);
-        if(random == 4) {
-            itemStacks.add(new ItemStack(Material.DIAMOND_CHESTPLATE, 1));
-        }
-        if(random == 3) {
-            itemStacks.add(new ItemStack(Material.IRON_LEGGINGS, 1));
-        }
-        if(random == 2) {
-            itemStacks.add(new ItemStack(Material.CHAINMAIL_BOOTS, 1));
-        }
-        if(random == 4) {
-            itemStacks.add(new ItemStack(Material.DIAMOND, 1));
-        }
-        if(random == 5) {
-            itemStacks.add(new WandOfRespiration().getItem());
-        }
-        return itemStacks;
+    public List<LootItem> getNormalItems () {
+        List<LootItem> lootItems = new ArrayList<>();
+        lootItems.add(new LootItem(new WandOfRespiration().getItem(), .50, 1, 1));
+        lootItems.add(new LootItem(new ItemStack(Material.OAK_PLANKS), .50, 16, 32));
+        lootItems.add(new LootItem(new ItemStack(Material.STONE), .50, 16, 32));
+        lootItems.add(new LootItem(new ItemStack(Material.APPLE), .50, 2, 5));
+        lootItems.add(new LootItem(new Gapple().getItem(), .25, 1, 1));
+        return lootItems;
     }
 
 }

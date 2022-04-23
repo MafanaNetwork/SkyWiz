@@ -29,13 +29,13 @@ public class PlayerUseMasterItem implements Listener {
                 this.useMasterItem(event, event.getPlayer().getInventory().getItemInMainHand());
             }
         } else {
-            gamePlayer.getPlayer().sendMessage("You Cannot use this item out side of the game.");
+            if(event.getItem() != null) {
+                gamePlayer.getPlayer().sendMessage("You Cannot use this item out side of the game.");
+            }
         }
     }
 
-    @EventHandler(
-            priority = EventPriority.HIGH
-    )
+    @EventHandler(priority = EventPriority.HIGH)
     private void onPlayerHit(EntityDamageByEntityEvent event) {
         if (event.getDamager().getType() == EntityType.PLAYER) {
             Player player = (Player) event.getDamager();
@@ -65,9 +65,7 @@ public class PlayerUseMasterItem implements Listener {
         }
     }
 
-    @EventHandler(
-            priority = EventPriority.HIGH
-    )
+    @EventHandler(priority = EventPriority.HIGH)
     private void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();

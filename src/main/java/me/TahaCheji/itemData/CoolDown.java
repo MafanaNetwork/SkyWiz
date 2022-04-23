@@ -16,8 +16,8 @@ public class CoolDown {
         this.gamePlayer = gamePlayer;
     }
 
-    public boolean ifCanUse() {
-        if(Main.getCoolDownHashMap().containsKey(gamePlayer)) {
+    public boolean ifCanUse(MasterItems masterItems) {
+        if(Main.getCoolDownHashMap().containsKey(masterItems)) {
             gamePlayer.getPlayer().sendMessage(ChatColor.RED + "Cant use that");
             gamePlayer.getPlayer().playSound(gamePlayer.getPlayer(), Sound.BLOCK_GLASS_BREAK, 10, 10);
             return true;
@@ -26,7 +26,7 @@ public class CoolDown {
     }
 
     public void addPlayerToCoolDown() {
-        Main.getCoolDownHashMap().put(gamePlayer, this);
+        Main.getCoolDownHashMap().put(masterItems, this);
         Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable() {
             @Override
             public void run() {
@@ -36,7 +36,7 @@ public class CoolDown {
     }
 
     public void removePlayerFromCoolDown() {
-        Main.getCoolDownHashMap().remove(gamePlayer, this);
+        Main.getCoolDownHashMap().remove(masterItems, this);
     }
 
     public GamePlayer getGamePlayer() {

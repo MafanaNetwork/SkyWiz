@@ -47,7 +47,7 @@ public class ChestInteract implements Listener {
             Chest chest = (Chest) event.getClickedBlock().getState();
 
             if (game.getOpened().contains(chest) || game.getEpicItems().size() == 0 || game.getNormalItems().size() == 0 || game.getPlayerBoostItems().size() == 0) {
-                Main.getChestGui().get(chest).getGui().open(event.getPlayer());
+                event.getPlayer().openInventory(Main.getChestGui().get(chest));
                 return;
             }
 

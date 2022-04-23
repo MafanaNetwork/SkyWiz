@@ -28,7 +28,7 @@ public class ShadowWarp extends MasterItems implements Listener {
     private List<java.util.UUID> shadowVeil = new ArrayList<UUID>();
 
     public ShadowWarp() {
-        super(null,"ShadowWarp", Material.BLACK_DYE, ItemType.SPELL, RarityType.OBSIDAIN, true, new MasterAbility("Shadow Veil", AbilityType.RIGHT_CLICK, 0, 0, "Right click to turn invisible"), true, "Invis baby");
+        super(null,"ShadowWarp", Material.BLACK_DYE, ItemType.SPELL, RarityType.OBSIDAIN, true, new MasterAbility("Shadow Veil", AbilityType.RIGHT_CLICK, 5, 0, "Right click to turn invisible"), true, "Invis baby");
     }
 
 
@@ -51,7 +51,7 @@ public class ShadowWarp extends MasterItems implements Listener {
     public boolean rightClickAirAction(Player player, ItemStack var2) {
         GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
         CoolDown coolDown = new CoolDown(this, Main.getInstance().getPlayer(player));
-        if(coolDown.ifCanUse()) {
+        if(coolDown.ifCanUse(this)) {
             return false;
         }
         coolDown.addPlayerToCoolDown();

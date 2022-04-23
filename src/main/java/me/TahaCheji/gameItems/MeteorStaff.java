@@ -23,7 +23,7 @@ public class MeteorStaff extends MasterItems {
 
 
     public MeteorStaff() {
-        super(null,"MeteorStaff", Material.ARROW, ItemType.STAFF, RarityType.DIAMOND, true, new MasterAbility("Meteor Strike", AbilityType.RIGHT_CLICK, 0, 15, "Right Click to summon a meteor from above"), false, "I didn't steal it from Terraria I swear");
+        super(null,"MeteorStaff", Material.ARROW, ItemType.STAFF, RarityType.DIAMOND, true, new MasterAbility("Meteor Strike", AbilityType.RIGHT_CLICK, 5, 15, "Right Click to summon a meteor from above"), false, "I didn't steal it from Terraria I swear");
     }
 
 
@@ -46,7 +46,7 @@ public class MeteorStaff extends MasterItems {
     public boolean rightClickAirAction(Player player, ItemStack var2) {
         GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
         CoolDown coolDown = new CoolDown(this, Main.getInstance().getPlayer(player));
-        if(coolDown.ifCanUse()) {
+        if(coolDown.ifCanUse(this)) {
             return false;
         }
         coolDown.addPlayerToCoolDown();

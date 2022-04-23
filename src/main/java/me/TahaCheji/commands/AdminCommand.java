@@ -1,6 +1,8 @@
 package me.TahaCheji.commands;
 
 import me.TahaCheji.Main;
+import me.TahaCheji.chestData.ChestGUI;
+import me.TahaCheji.chestData.ChestRarity;
 import me.TahaCheji.gameData.ActiveGameGui;
 import me.TahaCheji.gameData.Game;
 import me.TahaCheji.gameData.GameMode;
@@ -35,6 +37,9 @@ public class AdminCommand implements CommandExecutor {
             Player player = (Player) sender;
             if(!player.isOp()) {
                 player.sendMessage(ChatColor.RED + "You Do Not Have The Permission To Do This Command");
+            }
+            if(args[0].equalsIgnoreCase("test")) {
+                new ChestGUI().getGameGui(ChestRarity.NORMAL, null).open(player);
             }
             if (args[0].equalsIgnoreCase("edit")) {
                 File gameMapsFolder = new File("plugins/SkyWiz/", "maps");

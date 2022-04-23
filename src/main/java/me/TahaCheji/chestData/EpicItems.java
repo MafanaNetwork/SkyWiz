@@ -4,6 +4,7 @@ import me.TahaCheji.gameItems.LightningWand;
 import me.TahaCheji.gameItems.MeteorStaff;
 import me.TahaCheji.gameItems.ShadowWarp;
 import me.TahaCheji.gameItems.WandOfRespiration;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -13,19 +14,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class EpicItems {
 
 
-    public List<ItemStack> getEpicItems () {
-        List<ItemStack> itemStacks = new ArrayList<>();
-        int random = ThreadLocalRandom.current().nextInt(3);
-        if(random == 2) {
-            itemStacks.add(new MeteorStaff().getItem());
-        }
-        if(random == 1) {
-            itemStacks.add(new ShadowWarp().getItem());
-        }
-        if(random == 0) {
-            itemStacks.add(new LightningWand().getItem());
-        }
-        return itemStacks;
+    public List<LootItem> getEpicItems () {
+        List<LootItem> lootItems = new ArrayList<>();
+        lootItems.add(new LootItem(new MeteorStaff().getItem(), .25, 1, 1));
+        lootItems.add(new LootItem(new ShadowWarp().getItem(), .25, 1, 1));
+        lootItems.add(new LootItem(new LightningWand().getItem(), .20, 1, 1));
+        return lootItems;
     }
 
 }
