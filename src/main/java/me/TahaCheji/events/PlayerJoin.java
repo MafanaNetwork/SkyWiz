@@ -24,7 +24,7 @@ public class PlayerJoin implements Listener {
         gamePlayer.getPlayer().getInventory().setArmorContents(null);
         e.getPlayer().teleport(Main.getInstance().getLobbyPoint());
         e.setJoinMessage(null);
-        e.getPlayer().setGameMode(GameMode.ADVENTURE);
+        e.getPlayer().setGameMode(GameMode.SURVIVAL);
         LobbyScoreBoard lobbyScoreBoard = new LobbyScoreBoard();
         lobbyScoreBoard.setLobbyScoreBoard(gamePlayer);
         lobbyScoreBoard.updateScoreBoard(gamePlayer);

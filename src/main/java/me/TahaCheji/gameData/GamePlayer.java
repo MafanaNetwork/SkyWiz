@@ -8,7 +8,6 @@ public class GamePlayer {
 
     private final Player player;
     private Game game;
-    private BukkitTask regen;
     private PlayerLocation playerLocation;
 
     public GamePlayer(Player player, Game game) {
@@ -56,13 +55,6 @@ public class GamePlayer {
             getPlayer().teleport(location);
         }
 
-
-    public void setRegen(BukkitTask regen) {
-        this.regen = regen;
-    }
-    public BukkitTask getRegen() {
-        return regen;
-    }
 
     public String getName() {
             return player.getDisplayName();

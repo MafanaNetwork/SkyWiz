@@ -74,13 +74,13 @@ public class Game implements GameManager {
         if (!map.isLoaded()) {
             map.load();
             World world = map.getWorld();
-            for(Location location : playerSpawnLocations) {
+            for (Location location : playerSpawnLocations) {
                 location.setWorld(world);
             }
             lobbySpawn.setWorld(world);
         }
-        if(Main.getInstance().isInGame(gamePlayer.getPlayer())) {
-            gamePlayer.sendMessage(ChatColor.RED +"[Game Manager] " + "You are already in a game");
+        if (Main.getInstance().isInGame(gamePlayer.getPlayer())) {
+            gamePlayer.sendMessage(ChatColor.RED + "[Game Manager] " + "You are already in a game");
             return;
         }
         activePlayers.add(gamePlayer);
@@ -105,7 +105,7 @@ public class Game implements GameManager {
         }
     }
 
-    public void joinAdmin (GamePlayer gamePlayer) {
+    public void joinAdmin(GamePlayer gamePlayer) {
         for (Player online : Bukkit.getOnlinePlayers())
             online.hidePlayer(gamePlayer.getPlayer());
         gamePlayer.teleport(lobbySpawn);
@@ -119,16 +119,25 @@ public class Game implements GameManager {
         setMovementFrozen(false);
     }
 
+    public void adminStart() {
+        setState(GameState.STARTING);
+        inGameScoreBoard.updateScoreBoard(this);
+        sendMessage(ChatColor.GOLD + "[Game Manager] " + "The game will begin in 20 seconds...");
+        Main.getInstance().addActiveGame(this);
+        start();
+        startCountDown();
+    }
+
     @Override
     public void end() {
         if (inGameScoreBoard != null) {
             inGameScoreBoard.stopUpdating();
         }
-        if(gameCountdownTask != null) {
+        if (gameCountdownTask != null) {
             gameCountdownTask.getGameRunTask().getGameTask().setGameTimer(getGameTime());
             gameCountdownTask.getGameRunTask().getGameTask().cancel();
         }
-        for(GamePlayer gamePlayer : players) {
+        for (GamePlayer gamePlayer : players) {
             Player player = gamePlayer.getPlayer();
             player.sendMessage(ChatColor.GOLD + "[Game Manager] " + "Game has ended");
             gamePlayer.teleport(new Lobby().getLobbyPoint());
@@ -146,7 +155,7 @@ public class Game implements GameManager {
         resetGameInfo();
         Main.getInstance().getGames().add(this);
         Main.getInstance().removeActiveGame(this);
-        for(Chest chest : opened) {
+        for (Chest chest : opened) {
             Main.getChestGui().remove(chest);
         }
     }
@@ -173,7 +182,7 @@ public class Game implements GameManager {
     @Override
     public void resetGameInfo() {
         getPlayers().clear();
-        gameTime = 300;
+        gameTime = 450;
         inGameScoreBoard = new InGameScoreBoard();
         map.unload();
     }
@@ -188,16 +197,12 @@ public class Game implements GameManager {
     public void assignSpawnPositions() {
         int id = 0;
         for (GamePlayer gamePlayer : getPlayers()) {
-            try {
-                gamePlayerToSpawnPoint.put(gamePlayer, playerSpawnLocations.get(id));
-                gamePlayer.teleport(playerSpawnLocations.get(id));
-                gamePlayer.setPlayerLocation(PlayerLocation.GAME);
-                id += 1;
-                gamePlayer.getPlayer().setGameMode(org.bukkit.GameMode.SURVIVAL);
-                gamePlayer.getPlayer().setHealth(gamePlayer.getPlayer().getMaxHealth());
-            } catch (IndexOutOfBoundsException ex) {
-
-            }
+            gamePlayerToSpawnPoint.put(gamePlayer, playerSpawnLocations.get(id));
+            gamePlayer.teleport(playerSpawnLocations.get(id));
+            gamePlayer.setPlayerLocation(PlayerLocation.GAME);
+            id += 1;
+            gamePlayer.getPlayer().setGameMode(org.bukkit.GameMode.SURVIVAL);
+            gamePlayer.getPlayer().setHealth(gamePlayer.getPlayer().getMaxHealth());
         }
     }
 
@@ -247,7 +252,7 @@ public class Game implements GameManager {
     }
 
     public List<LootItem> getEpicItems() {
-       return new EpicItems().getEpicItems();
+        return new EpicItems().getEpicItems();
     }
 
     public List<LootItem> getPlayerBoostItems() {

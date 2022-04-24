@@ -56,8 +56,10 @@ public class PlayerDeath implements Listener {
         GamePlayer gamePlayer = game.getGamePlayer(player);
         gamePlayer.getPlayer().playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 10, 10);
         game.getPlayers().remove(gamePlayer);
-        GamePlayer winner = game.getPlayers().get(0);
-        game.setWinner(winner);
+        if(game.getPlayers().size() == 1) {
+            GamePlayer winner = game.getPlayers().get(0);
+            game.setWinner(winner);
+        }
     }
 
     private void handle(PlayerMoveEvent event, Game game) {
@@ -69,7 +71,9 @@ public class PlayerDeath implements Listener {
         GamePlayer gamePlayer = game.getGamePlayer(player);
         gamePlayer.getPlayer().playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 10, 10);
         game.getPlayers().remove(gamePlayer);
-        GamePlayer winner = game.getPlayers().get(0);
-        game.setWinner(winner);
+        if(game.getPlayers().size() == 1) {
+            GamePlayer winner = game.getPlayers().get(0);
+            game.setWinner(winner);
+        }
     }
 }

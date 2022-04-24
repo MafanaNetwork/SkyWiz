@@ -65,20 +65,6 @@ public class PlayerUseMasterItem implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    private void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (ItemUtil.isMasterItem(item)) {
-            MasterItems uber = ItemUtil.getMasterItem(item);
-            if (uber != null) {
-                if (uber.breakBlockAction(player, event, event.getBlock(), item)) {
-                    uber.onItemUse(player, item);
-                }
-            }
-        }
-    }
-
 
     private void useMasterItem(PlayerInteractEvent event, ItemStack item) {
         Player player = event.getPlayer();

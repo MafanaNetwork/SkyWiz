@@ -63,6 +63,12 @@ public class AdminCommand implements CommandExecutor {
                 }
                 return true;
             }
+            if(args[0].equalsIgnoreCase("remove")) {
+                Main.getInstance().getGame(player).getPlayers().remove(Main.getInstance().getPlayer(player));
+            }
+            if(args[0].equalsIgnoreCase("start")) {
+                Main.getInstance().getGame(player).adminStart();
+            }
             if (args[0].equalsIgnoreCase("active")) {
                 new ActiveGameGui().getGameGui().open(player);
             }

@@ -16,7 +16,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.io.IOException;
 
-public class DamageManager implements Listener {
+public class DamageManager {
 
     private final Player damager;
     private final LivingEntity target;

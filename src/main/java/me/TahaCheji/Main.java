@@ -1,6 +1,5 @@
 package me.TahaCheji;
 
-import me.TahaCheji.chestData.ChestGUI;
 import me.TahaCheji.commands.AdminCommand;
 import me.TahaCheji.commands.MainCommand;
 import me.TahaCheji.gameData.*;
@@ -8,7 +7,6 @@ import me.TahaCheji.itemData.CoolDown;
 import me.TahaCheji.itemData.MasterItems;
 import me.TahaCheji.lobbyData.Lobby;
 import me.TahaCheji.mapUtil.GameMap;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -17,14 +15,12 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 import me.TahaCheji.util.Files;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.time.LocalDate;
 import java.util.*;
 
 public final class Main extends JavaPlugin {
@@ -37,7 +33,6 @@ public final class Main extends JavaPlugin {
     private static HashMap<Player, GameMap> playerGameHashMap = new HashMap<>();
     private static HashMap<Player, Game> playerCreateGameHashMap = new HashMap<>();
     public static List<GameMap> activeMaps = new ArrayList<>();
-    private static Economy econ = null;
     public static Map<String, MasterItems> items = new HashMap();
     public static Map<Integer, MasterItems> itemIDs = new HashMap();
     public static List<MasterItems> allItems = new ArrayList<>();
@@ -48,7 +43,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         instance = this;
         String packageName = getClass().getPackage().getName();
-        for (Class<?> clazz : new Reflections(packageName, ".listeners").getSubTypesOf(Listener.class)) {
+        for (Class<?> clazz : new Reflections(packageName, ".events").getSubTypesOf(Listener.class)) {
             try {
                 Listener listener = (Listener) clazz.getDeclaredConstructor().newInstance();
                 getServer().getPluginManager().registerEvents(listener, this);
@@ -70,11 +65,6 @@ public final class Main extends JavaPlugin {
         } catch (IOException | InvalidConfigurationException e2) {
             e2.printStackTrace();
         }
-        if (!setupEconomy()) {
-            System.out.print("No econ plugin found.");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
         for (Game game : GameData.getAllSavedGames()) {
             addGame(game);
         }
@@ -85,6 +75,7 @@ public final class Main extends JavaPlugin {
 
         for(Player player : Bukkit.getOnlinePlayers()) {
             player.teleport(new Lobby().getLobbyPoint());
+            players.clear();
             GamePlayer gamePlayer = new GamePlayer(player, PlayerLocation.LOBBY);
             addGamePlayer(gamePlayer);
             player.sendMessage(ChatColor.RED + "It is very recommended for you to re join the server this is a reboot");
@@ -223,22 +214,6 @@ public final class Main extends JavaPlugin {
 
     public static HashMap<Player, Game> getPlayerCreateGameHashMap() {
         return playerCreateGameHashMap;
-    }
-
-    private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        econ = rsp.getProvider();
-        return econ != null;
-    }
-
-    public static Economy getEcon() {
-        return econ;
     }
 
     public static Main getInstance() {

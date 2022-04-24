@@ -25,6 +25,7 @@ public class ChestInteract implements Listener {
 
     @EventHandler
     public void onChestOpen(PlayerInteractEvent event) {
+        System.out.println(2);
         Player player = event.getPlayer();
 
         Game game = Main.getInstance().getGame(player);

@@ -2,7 +2,6 @@ package me.TahaCheji.scoreboards;
 
 import me.TahaCheji.Main;
 import me.TahaCheji.gameData.GamePlayer;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -14,7 +13,6 @@ public class LobbyScoreBoard {
    public Scoreboard board;
 
     public void setLobbyScoreBoard(GamePlayer player) {
-        Economy econ = Main.getEcon();
         board = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective obj = board.registerNewObjective("SkyWizzards", "dummy", ChatColor.GRAY + "♧" + ChatColor.GOLD + "SkyWizzards" + ChatColor.GRAY + "♧");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -24,7 +22,7 @@ public class LobbyScoreBoard {
 
         Team gameInfo = board.registerNewTeam("Coins");
         gameInfo.addEntry(ChatColor.BLACK + "" + ChatColor.BLACK);
-        gameInfo.setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "Coins: " + econ.getBalance(player.getPlayer()));
+        gameInfo.setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "Coins: 0");
         obj.getScore(ChatColor.BLACK + "" + ChatColor.BLACK).setScore(14);
 
         Score emptyText2 = obj.getScore("  ");
@@ -48,14 +46,13 @@ public class LobbyScoreBoard {
        TaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable() {
             @Override
             public void run() {
-                Economy econ = Main.getEcon();
                 Player player = gamePlayer.getPlayer();
                 if(!player.isOnline()) {
                     stopUpdating();
                     return;
                 }
                 Scoreboard newBoard = board;
-                newBoard.getTeam("Coins").setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "Coins: " + econ.getBalance(player.getPlayer()));
+                newBoard.getTeam("Coins").setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "Coins: " + 0);
                 newBoard.getTeam("Online").setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "OnlinePlayers: " + Bukkit.getOnlinePlayers().size());
             }
         }, 0, 5);
