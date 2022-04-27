@@ -1,6 +1,6 @@
 package me.TahaCheji.gameItems;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.itemData.*;
 import me.TahaCheji.managers.DamageManager;
@@ -23,7 +23,7 @@ public class WandOfRespiration extends MasterItems {
 
 
     public WandOfRespiration() {
-        super(null,"WandOfRespiration", Material.STICK, ItemType.STAFF, RarityType.REDSTONE, true, new MasterAbility("Celestial Damage", AbilityType.RIGHT_CLICK, 2, 1, "Right click to summon a beam dealing 2 damage"), false, "The magic comes from you.");
+        super(null,"WandOfRespiration", Material.STICK, ItemType.STAFF, RarityType.REDSTONE, true, new MasterAbility("Celestial Damage", AbilityType.RIGHT_CLICK, 1.5, 2, "Right click to summon a beam dealing 2 damage"), false, "The magic comes from you.");
     }
 
 
@@ -46,8 +46,8 @@ public class WandOfRespiration extends MasterItems {
 
     @Override
     public boolean rightClickAirAction(Player player, ItemStack var2) {
-        GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
-        CoolDown coolDown = new CoolDown(this, Main.getInstance().getPlayer(player));
+        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
+        CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(player));
         if(coolDown.ifCanUse(this)){
             return false;
         }
@@ -80,7 +80,8 @@ public class WandOfRespiration extends MasterItems {
                             ParticleEffect.FIREWORKS_SPARK.display(loc, 0, 0, 0, .2f, 32, null, Bukkit.getOnlinePlayers());
                             loc.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 2, 1);
                             new DamageManager(player, (LivingEntity) target, getMasterAbility()).damage();
-                            target.setVelocity(target.getLocation().toVector().subtract(loc.toVector()).multiply(.1).setY(.4));
+                            target.setVelocity(target.getLocation().toVector().subtract(loc.toVector()).multiply(.2).setY(.5));
+                            target.setVelocity(target.getLocation().toVector().subtract(loc.toVector()).multiply(.2).setZ(.5));
                             cancel();
                             return;
                         }
@@ -88,7 +89,7 @@ public class WandOfRespiration extends MasterItems {
                             cancel();
                     }
                 }
-            }.runTaskTimer(Main.getInstance(), 0, 1);
+            }.runTaskTimer(GameMain.getInstance(), 0, 1);
         return true;
     }
 

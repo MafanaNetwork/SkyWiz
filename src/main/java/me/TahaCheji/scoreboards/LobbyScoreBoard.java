@@ -1,7 +1,8 @@
 package me.TahaCheji.scoreboards;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.GamePlayer;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -14,15 +15,19 @@ public class LobbyScoreBoard {
 
     public void setLobbyScoreBoard(GamePlayer player) {
         board = Bukkit.getScoreboardManager().getNewScoreboard();
+        Economy economy = GameMain.getEcon();
         Objective obj = board.registerNewObjective("SkyWizzards", "dummy", ChatColor.GRAY + "♧" + ChatColor.GOLD + "SkyWizzards" + ChatColor.GRAY + "♧");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        Score name = obj.getScore(ChatColor.GOLD + "=-=-=-=-=-=-=-=-=-=-=-=-");
+        name.setScore(16);
 
         Score emptyText1 = obj.getScore(" ");
         emptyText1.setScore(15);
 
         Team gameInfo = board.registerNewTeam("Coins");
         gameInfo.addEntry(ChatColor.BLACK + "" + ChatColor.BLACK);
-        gameInfo.setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "Coins: 0");
+        gameInfo.setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "Coins: " + economy.getBalance(player.getPlayer()));
         obj.getScore(ChatColor.BLACK + "" + ChatColor.BLACK).setScore(14);
 
         Score emptyText2 = obj.getScore("  ");
@@ -36,14 +41,14 @@ public class LobbyScoreBoard {
         Score emptyText3 = obj.getScore("   ");
         emptyText3.setScore(11);
 
-        Score score7 = obj.getScore(ChatColor.GRAY + "Mafana.us.to");
+        Score score7 = obj.getScore(ChatColor.GOLD + "-=-=-=-Mafana.us.to-=-=-=-");
         score7.setScore(10);
 
         player.getPlayer().setScoreboard(board);
     }
 
     public void updateScoreBoard(GamePlayer gamePlayer) {
-       TaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable() {
+       TaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(GameMain.getInstance(), new Runnable() {
             @Override
             public void run() {
                 Player player = gamePlayer.getPlayer();
@@ -51,8 +56,9 @@ public class LobbyScoreBoard {
                     stopUpdating();
                     return;
                 }
+                Economy economy = GameMain.getEcon();
                 Scoreboard newBoard = board;
-                newBoard.getTeam("Coins").setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "Coins: " + 0);
+                newBoard.getTeam("Coins").setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "Coins: " + economy.getBalance(player.getPlayer()));
                 newBoard.getTeam("Online").setPrefix(ChatColor.GRAY + ">> " + ChatColor.GOLD + "OnlinePlayers: " + Bukkit.getOnlinePlayers().size());
             }
         }, 0, 5);

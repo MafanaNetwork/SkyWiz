@@ -1,11 +1,13 @@
 package me.TahaCheji.gameItems;
 
 import me.TahaCheji.GameMain;
-import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.itemData.*;
 import me.TahaCheji.managers.DamageManager;
 import me.TahaCheji.util.AbilityUtil;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -21,15 +23,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import xyz.xenondevs.particle.ParticleEffect;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class Earthquake extends MasterItems {
+public class Oracle extends MasterItems {
 
 
-    public Earthquake() {
-        super(null, "Earthquake", Material.BROWN_DYE, ItemType.SPELL, RarityType.LAPIS, true,
-                new MasterAbility("One With The Earth", AbilityType.RIGHT_CLICK, 5, 18, "Right Click to create a Earthquake"), true, "Rumble ruble ruble");
+    public Oracle() {
+        super(null, "Oracle", Material.WHITE_DYE, ItemType.WAND, RarityType.REDSTONE, true,
+                new MasterAbility("Fire Crystal", AbilityType.RIGHT_CLICK, 2, 2, "Summons an ice crystal that deals damage to the first enemy it hits.",
+                        "Also applies Burns for a few seconds."), false, "Hazzza!");
     }
 
     @Override
@@ -48,38 +50,52 @@ public class Earthquake extends MasterItems {
     }
 
     @Override
-    public boolean rightClickAirAction(Player player, ItemStack var2) {
-        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
-        CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(player));
+    public boolean rightClickAirAction(Player var1, ItemStack var2) {
+        CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(var1));
         if(coolDown.ifCanUse(this)) {
             return false;
         }
         coolDown.addPlayerToCoolDown();
-        new AbilityUtil().sendAbility(player, getMasterAbility());
+        new AbilityUtil().sendAbility(var1, getMasterAbility());
+        var1.getWorld().playSound(var1.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1, 1);
         new BukkitRunnable() {
-            Vector vec = new AbilityUtil().getTargetDirection(player, null).setY(0);
-            Location loc = player.getLocation().clone();
+            Vector vec = new AbilityUtil().getTargetDirection(var1, null).multiply(.7);
+            Location loc = var1.getEyeLocation();
             int ti = 0;
-            List<Integer> hit = new ArrayList<>();
 
             public void run() {
                 ti++;
-                if (ti > 20)
+                if (ti > 25)
                     cancel();
 
-                loc.add(vec);
-                ParticleEffect.CLOUD.display(loc, .5f, 0, .5f, 0, 5, null, Bukkit.getOnlinePlayers());
-                loc.getWorld().playSound(loc, Sound.BLOCK_GRAVEL_BREAK, 2, 1);
-                for (Entity target : loc.getNearbyEntities(3, 3, 3))
-                    if (loc.distanceSquared(target.getLocation()) < 2 && !hit.contains(target.getEntityId()) && !target.equals(player) && target instanceof LivingEntity) {
-                        hit.add(target.getEntityId());
-                        new DamageManager(player, (LivingEntity) target, getMasterAbility()).damage();
-                        ((LivingEntity) target).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, (int) (5 * 20), (int) 5));
+                loc.getWorld().playSound(loc, Sound.BLOCK_GLASS_BREAK, 2, 1);
+                List<Entity> entities = AbilityUtil.getNearbyChunkEntities(loc);
+                for (int j = 0; j < 3; j++) {
+                    loc.add(vec);
+                    if (loc.getBlock().getType().isSolid())
                         cancel();
-                    }
-            }
-        }.runTaskTimer(GameMain.getInstance(), 0, 1);
 
+                    for (int i = 3; i < 6; i++)
+                        ParticleEffect.SNOW_SHOVEL.display(loc, new Vector(0, .7, 0), .07f * i, 3, null, Bukkit.getOnlinePlayers());
+                    ParticleEffect.FIREWORKS_SPARK.display(loc, 0, 0, 0, .04f, 1, null, Bukkit.getOnlinePlayers());
+
+                    for (Entity target : entities) {
+                        Player player = (Player) target;
+                        if(player.getUniqueId().toString().equalsIgnoreCase(var1.getUniqueId().toString())) {
+                            continue;
+                        }
+                        ParticleEffect.EXPLOSION_LARGE.display(loc, 0, 0, 0, 0, 1, null, Bukkit.getOnlinePlayers());
+                        ParticleEffect.SNOW_SHOVEL.display(loc,0, 0, 0, .13f, 48, null, Bukkit.getOnlinePlayers());
+                        ParticleEffect.FIREWORKS_SPARK.display(loc, 0, 0, 0, .2f, 24, null, Bukkit.getOnlinePlayers());
+                        loc.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 2, 1);
+                        new DamageManager(var1, (LivingEntity) target, getMasterAbility()).damage();
+                        ((LivingEntity) target).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, (int) 3 * 20, (int) 1));
+                        cancel();
+                        return;
+                    }
+                }
+                }
+        }.runTaskTimer(GameMain.getInstance(), 0, 1);
         return true;
     }
 

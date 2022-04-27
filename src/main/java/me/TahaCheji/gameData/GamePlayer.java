@@ -9,6 +9,7 @@ public class GamePlayer {
     private final Player player;
     private Game game;
     private PlayerLocation playerLocation;
+    private int kills;
 
     public GamePlayer(Player player, Game game) {
         this.player = player;
@@ -20,6 +21,13 @@ public class GamePlayer {
         this.playerLocation = location;
     }
 
+    public int getKills() {
+        return kills;
+    }
+
+    public void setKills(int kills) {
+        this.kills = kills;
+    }
 
     public Player getPlayer() {
         return player;

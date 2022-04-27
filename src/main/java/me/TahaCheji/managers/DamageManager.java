@@ -1,20 +1,17 @@
 package me.TahaCheji.managers;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.Game;
-import me.TahaCheji.gameData.GamePlayer;
+import me.TahaCheji.gameItems.Shield;
 import me.TahaCheji.itemData.MasterAbility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
-
-import java.io.IOException;
 
 public class DamageManager {
 
@@ -32,12 +29,15 @@ public class DamageManager {
         if(target instanceof ArmorStand) {
             return;
         }
-        int damage = (int) (ability.getAbilityDamage());
-        if(target.getHealth() <= damage && target instanceof Player) {
-            Game game = Main.getInstance().getGame((Player) target);
+        if(Shield.isOnSheild.containsKey(GameMain.getInstance().getPlayer((Player) target))) {
+            return;
+        }
+        double armor = target.getAttribute(Attribute.GENERIC_ARMOR).getValue();
+        int damage = (int) ((ability.getAbilityDamage()) - (armor / 10));
+        if(target.getHealth() <= damage) {
+            Game game = GameMain.getInstance().getGame((Player) target);
             Player player = (Player) target;
-            handle(player, game);
-
+            new DeathManager(GameMain.getInstance().getPlayer(damager), GameMain.getInstance().getPlayer(player), game).handle();
             return;
         }
         target.damage(damage);
@@ -49,7 +49,7 @@ public class DamageManager {
             armorStand.setSmall(true);
             armorStand.setCustomNameVisible(true);
             armorStand.setCustomName(ChatColor.DARK_PURPLE + "✧" + damage);
-            Bukkit.getScheduler().runTaskLater(Main.getInstance(), armorStand::remove, 20); // Time in ticks (20 ticks = 1 second)
+            Bukkit.getScheduler().runTaskLater(GameMain.getInstance(), armorStand::remove, 20); // Time in ticks (20 ticks = 1 second)
         });
         damager.getWorld().playSound(damager.getLocation(), Sound.ENTITY_EXPERIENCE_BOTTLE_THROW, 2, 1);
     }
@@ -72,17 +72,6 @@ public class DamageManager {
         double random = Math.random();
         if (Math.random() > 0.5) random *= -1;
         return random;
-    }
-
-    private void handle(Player player, Game game) {
-        if (!game.isState(Game.GameState.ACTIVE) && !game.isState(Game.GameState.DEATHMATCH)) {
-            return;
-        }
-        GamePlayer gamePlayer = game.getGamePlayer(player);
-        gamePlayer.getPlayer().playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 10, 10);
-        game.getPlayers().remove(gamePlayer);
-        GamePlayer winner = game.getPlayers().get(0);
-        game.setWinner(winner);
     }
 
 }

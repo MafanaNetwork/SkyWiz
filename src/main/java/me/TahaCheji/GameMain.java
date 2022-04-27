@@ -1,12 +1,14 @@
 package me.TahaCheji;
 
+import me.TahaCheji.chestData.ItemData;
 import me.TahaCheji.commands.AdminCommand;
 import me.TahaCheji.commands.MainCommand;
 import me.TahaCheji.gameData.*;
-import me.TahaCheji.itemData.CoolDown;
 import me.TahaCheji.itemData.MasterItems;
 import me.TahaCheji.lobbyData.Lobby;
 import me.TahaCheji.mapUtil.GameMap;
+import me.TahaCheji.util.FileUtil;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,17 +17,20 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 import me.TahaCheji.util.Files;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.logging.Level;
 
-public final class Main extends JavaPlugin {
+public final class GameMain extends JavaPlugin {
 
-    private static Main instance;
+    private static GameMain instance;
     private Set<Game> games = new HashSet<>();
     private Set<Game> activeGames = new HashSet<>();
     public Map<Player, Game> playerGameMap = new HashMap<>();
@@ -37,17 +42,27 @@ public final class Main extends JavaPlugin {
     public static Map<Integer, MasterItems> itemIDs = new HashMap();
     public static List<MasterItems> allItems = new ArrayList<>();
     private static HashMap<Chest, Inventory> chestGameGui = new HashMap<>();
-    private static HashMap<MasterItems, CoolDown> coolDownHashMap = new HashMap<>();
+    private static HashMap<MasterItems, GamePlayer> coolDownHashMap = new HashMap<>();
+    public static Map<String, ItemData> blocks = new HashMap();
+    public static Map<Integer, ItemData> blocksIDs = new HashMap();
+    private static Economy econ = null;
 
     @Override
     public void onEnable() {
         instance = this;
+        File dataFolder = getServer().getWorldContainer();
+        File[] files = dataFolder.listFiles();
+        assert files != null;
+        for (File file : files) {
+            if (file.getName().contains("active")) {
+                FileUtil.delete(file);
+            }
+        }
         String packageName = getClass().getPackage().getName();
         for (Class<?> clazz : new Reflections(packageName, ".events").getSubTypesOf(Listener.class)) {
             try {
                 Listener listener = (Listener) clazz.getDeclaredConstructor().newInstance();
                 getServer().getPluginManager().registerEvents(listener, this);
-                System.out.println(clazz.getName());
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -59,6 +74,25 @@ public final class Main extends JavaPlugin {
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
+        }
+        for (Class<?> clazz : new Reflections(packageName).getSubTypesOf(ItemData.class)) {
+            try {
+                ItemData masterWeapons = (ItemData) clazz.getDeclaredConstructor().newInstance();
+                masterWeapons.registerBlock();
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
+        getServer().getPluginManager().getPlugin("Citizens").onLoad();
+        if(getServer().getPluginManager().getPlugin("Citizens") == null || !Objects.requireNonNull(getServer().getPluginManager().getPlugin("Citizens")).isEnabled()) {
+            getLogger().log(Level.SEVERE, "Citizens 2.0 not found or not enabled");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        if (!setupEconomy()) {
+            System.out.print("No econ plugin found.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
         }
         try {
             Files.initFiles();
@@ -95,7 +129,13 @@ public final class Main extends JavaPlugin {
     public static MasterItems getItemFromID(int id) {
         MasterItems item = (MasterItems) itemIDs.get(id);
 
-        return item == null ? (MasterItems)items.get("null") : item;
+        return item == null ? (MasterItems) items.get("null") : item;
+    }
+
+    public static ItemData getBlockDataID(int id) {
+        ItemData item = (ItemData) blocksIDs.get(id);
+
+        return item == null ? (ItemData) blocks.get("null") : item;
     }
 
     public static void putItem(String name, MasterItems item) {
@@ -103,7 +143,12 @@ public final class Main extends JavaPlugin {
         itemIDs.put(item.getUUID(), item);
     }
 
-    public static HashMap<MasterItems, CoolDown> getCoolDownHashMap() {
+    public static void putBlock(String name, ItemData item) {
+        blocks.put(name, item);
+        blocksIDs.put(item.getUUID(), item);
+    }
+
+    public static HashMap<MasterItems, GamePlayer> getCoolDownHashMap() {
         return coolDownHashMap;
     }
 
@@ -172,6 +217,22 @@ public final class Main extends JavaPlugin {
         return gPlayer;
     }
 
+    public static Economy getEcon() {
+        return econ;
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
     public Location getLobbyPoint() {
         return new Lobby().getLobbyPoint();
     }
@@ -216,7 +277,7 @@ public final class Main extends JavaPlugin {
         return playerCreateGameHashMap;
     }
 
-    public static Main getInstance() {
+    public static GameMain getInstance() {
         return instance;
     }
 }

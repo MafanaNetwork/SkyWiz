@@ -1,35 +1,26 @@
 package me.TahaCheji.gameItems;
 
 import me.TahaCheji.GameMain;
-import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.itemData.*;
-import me.TahaCheji.managers.DamageManager;
 import me.TahaCheji.util.AbilityUtil;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-import xyz.xenondevs.particle.ParticleEffect;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Earthquake extends MasterItems {
+public class Upseis extends MasterItems {
 
 
-    public Earthquake() {
-        super(null, "Earthquake", Material.BROWN_DYE, ItemType.SPELL, RarityType.LAPIS, true,
-                new MasterAbility("One With The Earth", AbilityType.RIGHT_CLICK, 5, 18, "Right Click to create a Earthquake"), true, "Rumble ruble ruble");
+    public Upseis() {
+        super(null, "Upseis", Material.AMETHYST_SHARD, ItemType.SPELL, RarityType.DIAMOND, true,
+                new MasterAbility("I want Upseis!", AbilityType.RIGHT_CLICK, 5, 0, "Teleports you 15 blocks in the air exploding what was left behind."),
+                true, "From the movie Boss Baby get it?");
     }
 
     @Override
@@ -49,37 +40,18 @@ public class Earthquake extends MasterItems {
 
     @Override
     public boolean rightClickAirAction(Player player, ItemStack var2) {
-        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
         CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(player));
-        if(coolDown.ifCanUse(this)) {
+        if (coolDown.ifCanUse(this)) {
             return false;
         }
         coolDown.addPlayerToCoolDown();
         new AbilityUtil().sendAbility(player, getMasterAbility());
-        new BukkitRunnable() {
-            Vector vec = new AbilityUtil().getTargetDirection(player, null).setY(0);
-            Location loc = player.getLocation().clone();
-            int ti = 0;
-            List<Integer> hit = new ArrayList<>();
-
-            public void run() {
-                ti++;
-                if (ti > 20)
-                    cancel();
-
-                loc.add(vec);
-                ParticleEffect.CLOUD.display(loc, .5f, 0, .5f, 0, 5, null, Bukkit.getOnlinePlayers());
-                loc.getWorld().playSound(loc, Sound.BLOCK_GRAVEL_BREAK, 2, 1);
-                for (Entity target : loc.getNearbyEntities(3, 3, 3))
-                    if (loc.distanceSquared(target.getLocation()) < 2 && !hit.contains(target.getEntityId()) && !target.equals(player) && target instanceof LivingEntity) {
-                        hit.add(target.getEntityId());
-                        new DamageManager(player, (LivingEntity) target, getMasterAbility()).damage();
-                        ((LivingEntity) target).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, (int) (5 * 20), (int) 5));
-                        cancel();
-                    }
-            }
-        }.runTaskTimer(GameMain.getInstance(), 0, 1);
-
+        Location location = new Location(player.getWorld(), player.getLocation().getX(), player.getLocation().getY() + 15, player.getLocation().getZ());
+        Location old = new Location(player.getWorld(), player.getLocation().getX(), player.getLocation().getY() + 15, player.getLocation().getZ());
+        Location newLocation = new Location(player.getWorld(), player.getLocation().getX(), player.getLocation().getY() + 14, player.getLocation().getZ());
+        player.teleport(location);
+        newLocation.getBlock().setType(Material.AMETHYST_BLOCK);
+        player.getLocation().getWorld().createExplosion(old, 15);
         return true;
     }
 

@@ -12,10 +12,10 @@ public class MasterAbility {
     private final String name;
     private final List<String> description;
     private final AbilityType type;
-    private final int coolDown;
+    private final double coolDown;
     private int abilityDamage;
 
-    public MasterAbility(String name, AbilityType type, int coolDown, int damage, String... description) {
+    public MasterAbility(String name, AbilityType type, double coolDown, int damage, String... description) {
         this.name = name;
         this.description = Arrays.asList(description);
         this.type = type;
@@ -52,7 +52,7 @@ public class MasterAbility {
         return type;
     }
 
-    public int getCoolDown() {
+    public double getCoolDown() {
         return coolDown;
     }
 

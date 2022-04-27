@@ -4,7 +4,7 @@ import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.util.NBTUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
@@ -68,10 +68,10 @@ public class ActiveGameGui implements Listener {
         gui.setItem(6, 3, ItemBuilder.from(Material.PAPER).setName(ChatColor.DARK_GRAY + "Previous").asGuiItem(event -> gui.previous()));
         gui.setItem(6, 7, ItemBuilder.from(Material.PAPER).setName(ChatColor.DARK_GRAY + "Next").asGuiItem(event -> gui.next()));
 
-        for(Game game : Main.getInstance().getActiveGames()) {
+        for(Game game : GameMain.getInstance().getActiveGames()) {
             ItemStack itemStack = game.getGameIcon();
             ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.setDisplayName(ChatColor.GOLD + game.getName());
+            itemMeta.setDisplayName(game.getName());
             List<String> itemLore = new ArrayList<>();
             itemLore.add("");
             itemLore.add(ChatColor.DARK_PURPLE + "Players: " + game.getPlayers().size() + "/2");
@@ -103,8 +103,8 @@ public class ActiveGameGui implements Listener {
             return;
         }
         Player player = (Player) event.getWhoClicked();
-        GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
-        Game game = Main.getInstance().getActiveGame(NBTUtils.getString(event.getCurrentItem(), "GameName"));
+        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
+        Game game = GameMain.getInstance().getActiveGame(NBTUtils.getString(event.getCurrentItem(), "GameName"));
         if(game == null) {
             return;
         }

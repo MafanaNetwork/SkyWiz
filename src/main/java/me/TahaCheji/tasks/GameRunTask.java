@@ -1,6 +1,6 @@
 package me.TahaCheji.tasks;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.Game;
 import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.gameData.PlayerLocation;
@@ -34,7 +34,7 @@ public class GameRunTask extends BukkitRunnable {
             this.cancel();
             game.start();
             gameTask = new ActiveGameTask(game, game.getGameTime());
-            gameTask.runTaskTimer(Main.getInstance(), 0, 20);
+            gameTask.runTaskTimer(GameMain.getInstance(), 0, 20);
         } else {
             startIn -= 1;
             this.game.sendMessage(ChatColor.GOLD + "[Game Manager] " + "The game will begin in " + startIn + " second" + (startIn == 1 ? "" : "s"));

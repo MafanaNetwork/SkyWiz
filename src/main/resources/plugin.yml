@@ -1,4 +1,4 @@
-depend: [NBTAPI]
+depend: [NBTAPI, Citizens]
 name: SkyWiz
 version: '${project.version}'
 main: me.TahaCheji.Main

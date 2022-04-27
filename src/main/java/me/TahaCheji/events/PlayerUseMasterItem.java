@@ -1,6 +1,6 @@
 package me.TahaCheji.events;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.itemData.MasterItems;
 import me.TahaCheji.util.ItemUtil;
@@ -10,7 +10,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -23,8 +22,8 @@ public class PlayerUseMasterItem implements Listener {
             priority = EventPriority.HIGH
     )
     private void onPlayerUse(PlayerInteractEvent event) {
-        GamePlayer gamePlayer = Main.getInstance().getPlayer(event.getPlayer());
-        if (Main.getInstance().isInGame(gamePlayer.getPlayer()) || gamePlayer.getPlayer().isOp()) {
+        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(event.getPlayer());
+        if (GameMain.getInstance().isInGame(gamePlayer.getPlayer()) || gamePlayer.getPlayer().isOp()) {
             if (ItemUtil.isMasterItem(event.getPlayer().getInventory().getItemInMainHand())) {
                 this.useMasterItem(event, event.getPlayer().getInventory().getItemInMainHand());
             }

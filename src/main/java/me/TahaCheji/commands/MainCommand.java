@@ -1,6 +1,6 @@
 package me.TahaCheji.commands;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.Game;
 import me.TahaCheji.gameData.GameGui;
 import me.TahaCheji.gameData.GamePlayer;
@@ -24,13 +24,13 @@ public class MainCommand implements CommandExecutor {
                    new GameGui().getGameGui().open(player);
                     return true;
                     }
-                Game game = Main.getInstance().getGame(args[1]);
+                Game game = GameMain.getInstance().getGame(args[1]);
                 if (game == null) {
                     player.sendMessage(ChatColor.RED +"[Game Manager] " + "That game does not exist");
                     return true;
                 }
-                GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
-                if (Main.getInstance().isInGame(player)) {
+                GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
+                if (GameMain.getInstance().isInGame(player)) {
                     player.sendMessage(ChatColor.GREEN +"[Game Manager] " +"You are already in a game");
                     return true;
                 }
@@ -38,21 +38,21 @@ public class MainCommand implements CommandExecutor {
                 game.playerJoin(gamePlayer);
             }
             if (args[0].equalsIgnoreCase("leave")) {
-                if (Main.getInstance().isInGame(player)) {
-                    Game game = Main.getInstance().getGame(player);
-                    game.playerLeave(Main.getInstance().getPlayer(player));
+                if (GameMain.getInstance().isInGame(player)) {
+                    Game game = GameMain.getInstance().getGame(player);
+                    game.playerLeave(GameMain.getInstance().getPlayer(player));
                     player.sendMessage(ChatColor.RED +"[Game Manager] " + "You have left the game.");
                     return true;
                 }
             }
             if (args[0].equalsIgnoreCase("hub")) {
-                if (Main.getInstance().isInGame(player)) {
-                    Game game = Main.getInstance().getGame(player);
-                    game.playerLeave(Main.getInstance().getPlayer(player));
+                if (GameMain.getInstance().isInGame(player)) {
+                    Game game = GameMain.getInstance().getGame(player);
+                    game.playerLeave(GameMain.getInstance().getPlayer(player));
                     return true;
                 } else {
-                    Main.getInstance().getPlayer(player).setPlayerLocation(PlayerLocation.LOBBY);
-                    player.teleport(Main.getInstance().getLobbyPoint());
+                    GameMain.getInstance().getPlayer(player).setPlayerLocation(PlayerLocation.LOBBY);
+                    player.teleport(GameMain.getInstance().getLobbyPoint());
                 }
             }
         }

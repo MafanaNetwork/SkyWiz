@@ -1,6 +1,6 @@
 package me.TahaCheji.gameItems;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.itemData.*;
 import me.TahaCheji.util.AbilityUtil;
@@ -41,8 +41,8 @@ public class Gapple extends MasterItems {
 
     @Override
     public boolean rightClickAirAction(Player player, ItemStack var2) {
-        GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
-        CoolDown coolDown = new CoolDown(this, Main.getInstance().getPlayer(player));
+        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
+        CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(player));
         if(coolDown.ifCanUse(this)) {
             return false;
         }

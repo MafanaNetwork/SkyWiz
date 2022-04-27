@@ -1,6 +1,6 @@
 package me.TahaCheji.gameItems;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.itemData.*;
 import me.TahaCheji.util.AbilityUtil;
@@ -49,13 +49,13 @@ public class ShadowWarp extends MasterItems implements Listener {
 
     @Override
     public boolean rightClickAirAction(Player player, ItemStack var2) {
-        GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
-        CoolDown coolDown = new CoolDown(this, Main.getInstance().getPlayer(player));
+        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
+        CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(player));
         if(coolDown.ifCanUse(this)) {
             return false;
         }
         coolDown.addPlayerToCoolDown();
-        double duration = 20;
+        double duration = 15;
         new AbilityUtil().sendAbility(player, getMasterAbility());
         shadowVeil.add(player.getUniqueId());
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 3, 0);
@@ -93,7 +93,7 @@ public class ShadowWarp extends MasterItems implements Listener {
                         }
                     }
             }
-        }.runTaskTimer(Main.getInstance(), 0, 1);
+        }.runTaskTimer(GameMain.getInstance(), 0, 1);
 
         return true;
     }

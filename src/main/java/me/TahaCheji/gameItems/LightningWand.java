@@ -1,6 +1,6 @@
 package me.TahaCheji.gameItems;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.itemData.*;
 import me.TahaCheji.managers.DamageManager;
@@ -23,7 +23,7 @@ public class LightningWand extends MasterItems {
 
 
     public LightningWand() {
-        super(null, "LightningWand", Material.BONE, ItemType.WAND, RarityType.GOLD, true, new MasterAbility("Sparkle", AbilityType.RIGHT_CLICK, 2, 5, "Right click to zap mobs in a 10 by 10 radios dealing 5 damage"), false, "I STRIKE AGAIN MUAHAHAHA");
+        super(null, "LightningWand", Material.BONE, ItemType.WAND, RarityType.GOLD, true, new MasterAbility("Sparkle", AbilityType.RIGHT_CLICK, 2, 2, "Right click to zap mobs in a 10 by 10 radios dealing 5 damage"), false, "I STRIKE AGAIN MUAHAHAHA");
     }
 
 
@@ -44,8 +44,8 @@ public class LightningWand extends MasterItems {
 
     @Override
     public boolean rightClickAirAction(Player player, ItemStack var2) {
-        GamePlayer gamePlayer = Main.getInstance().getPlayer(player);
-        CoolDown coolDown = new CoolDown(this, Main.getInstance().getPlayer(player));
+        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
+        CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(player));
         if(coolDown.ifCanUse(this)) {
             return false;
         }

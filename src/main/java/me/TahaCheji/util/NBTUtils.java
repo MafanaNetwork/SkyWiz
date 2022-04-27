@@ -2,8 +2,11 @@ package me.TahaCheji.util;
 
 import de.tr7zw.nbtapi.NBTBlock;
 import de.tr7zw.nbtapi.NBTCompound;
+import de.tr7zw.nbtapi.NBTEntity;
 import de.tr7zw.nbtapi.NBTItem;
+import de.tr7zw.nbtinjector.NBTInjector;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 public class NBTUtils {
@@ -14,8 +17,9 @@ public class NBTUtils {
         return nbt.getItem();
     }
 
-    public static void setString(Block is, String key, String value) {
-        NBTCompound nbt = new NBTBlock(is).getData();
+    public static void setEntityString(Entity is, String key, String value) {
+        NBTCompound nbt = new NBTEntity(is).getPersistentDataContainer();
+
         nbt.setString(key, value);
     }
 
@@ -40,6 +44,7 @@ public class NBTUtils {
 
 
 
+
     public static String getString(ItemStack is, String key) {
         return new NBTItem(is).getString(key);
     }
@@ -48,7 +53,17 @@ public class NBTUtils {
         return new NBTItem(is).getDouble(key);
     }
 
+    public static String getEntityString(Entity entity, String key) {
+        NBTCompound nbt = new NBTEntity(entity).getPersistentDataContainer();
+        return nbt.getString(key);
+    }
+
+
     public static int getInt(ItemStack is, String key) {
         return new NBTItem(is).getInteger(key);
+    }
+
+    public static boolean getBoolean(ItemStack is, String key) {
+        return new NBTItem(is).getBoolean(key);
     }
 }

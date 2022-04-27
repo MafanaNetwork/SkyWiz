@@ -1,11 +1,12 @@
 package me.TahaCheji.gameItems;
 
 import me.TahaCheji.GameMain;
-import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.itemData.*;
 import me.TahaCheji.managers.DamageManager;
 import me.TahaCheji.util.AbilityUtil;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -19,13 +20,17 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import xyz.xenondevs.particle.ParticleEffect;
 
-public class MeteorStaff extends MasterItems {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Dash extends MasterItems {
 
 
-    public MeteorStaff() {
-        super(null,"MeteorStaff", Material.ARROW, ItemType.STAFF, RarityType.DIAMOND, true, new MasterAbility("Meteor Strike", AbilityType.RIGHT_CLICK, 5, 15, "Right Click to summon a meteor from above"), false, "I didn't steal it from Terraria I swear");
+    public Dash() {
+        super(null, "Dash", Material.FEATHER, ItemType.SPELL, RarityType.DIAMOND, true,
+                new MasterAbility("Rebibe me jett", AbilityType.RIGHT_CLICK, 0, 3, "Performs a quick dash forwards, dealing damage to hit enemies."),
+                true, "I got this one from valorant this time!");
     }
-
 
     @Override
     public void onItemStackCreate(ItemStack var1) {
@@ -43,45 +48,34 @@ public class MeteorStaff extends MasterItems {
     }
 
     @Override
-    public boolean rightClickAirAction(Player player, ItemStack var2) {
-        GamePlayer gamePlayer = GameMain.getInstance().getPlayer(player);
-        CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(player));
+    public boolean rightClickAirAction(Player var1, ItemStack var2) {
+        CoolDown coolDown = new CoolDown(this, GameMain.getInstance().getPlayer(var1));
         if(coolDown.ifCanUse(this)) {
             return false;
         }
         coolDown.addPlayerToCoolDown();
-        new AbilityUtil().sendAbility(player, getMasterAbility());
+        new AbilityUtil().sendAbility(var1, getMasterAbility());
         new BukkitRunnable() {
-            double ti = 0;
-            Location loc = player.getLocation().add(0, 10, 0);
-            Vector vec = player.getLocation().getDirection().multiply(1.3).setY(-1).normalize();
+            int j = 0;
+            Vector vec = var1.getEyeLocation().getDirection();
+            List<Integer> hit = new ArrayList<>();
 
             public void run() {
-                ti++;
-                if (ti > 40)
+                j++;
+                if (j > 10 * Math.min(10, 1))
                     cancel();
 
-                loc.add(vec);
-                ParticleEffect.EXPLOSION_LARGE.display(loc, 0, 0, 0, 0, 1, null, Bukkit.getOnlinePlayers());
-                ParticleEffect.FLAME.display(loc, .2f, .2f, .2f, 0, 4, null, Bukkit.getOnlinePlayers());
-                if (loc.getBlock().getType().isSolid()) {
-                    loc.add(vec.multiply(-1));
-                    loc.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 3, .6f);
-                    ParticleEffect.EXPLOSION_LARGE.display(loc, 2, 2, 2, 0, 16, null, Bukkit.getOnlinePlayers());
-                    ParticleEffect.FLAME.display(loc, 0, 0, 0, .3f, 64, null, Bukkit.getOnlinePlayers());
-                    ParticleEffect.EXPLOSION_NORMAL.display(loc, 0, 0, 0, .3f, 32, null, Bukkit.getOnlinePlayers());
-                    player.getWorld().createExplosion(loc, 5);
-                    cancel();
-                    for (Entity target : loc.getNearbyEntities(3, 2, 3)) {
-                        if (target.equals(player) || !(target instanceof LivingEntity)) {
-                            continue;
-                        }
-                        new DamageManager(player, (LivingEntity) target, getMasterAbility()).damage();
-                        target.setVelocity(target.getLocation().toVector().subtract(loc.toVector()).multiply(.1 * 2).setY(.4 * 3));
+                var1.setVelocity(vec);
+                ParticleEffect.SMOKE_LARGE.display(var1.getLocation().add(0, 1, 0), 0, 0, 0, 0, 1, null, Bukkit.getOnlinePlayers());
+                var1.getWorld().playSound(var1.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1, 2);
+                for (Entity entity : var1.getNearbyEntities(1, 1, 1)) {
+                    if (!hit.contains(entity.getEntityId())) {
+                        hit.add(entity.getEntityId());
+                        new DamageManager(var1, (LivingEntity) entity, getMasterAbility()).damage();
                     }
                 }
             }
-        }.runTaskTimer(GameMain.getInstance(), 0, 1);
+        }.runTaskTimer(GameMain.getInstance(), 0, 2);
         return true;
     }
 

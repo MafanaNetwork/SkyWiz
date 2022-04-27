@@ -1,12 +1,13 @@
 package me.TahaCheji.util;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.itemData.MasterAbility;
 import me.TahaCheji.itemData.MasterItems;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -20,10 +21,11 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class AbilityUtil {
 
-    private static final Random random = new Random();
+    public static final Random random = new Random();
 
     public int abilityDamage (MasterItems masterItems) {
         return masterItems.getMasterAbility().getAbilityDamage();
@@ -201,6 +203,18 @@ public class AbilityUtil {
         return loc == null;
     }
 
+    public Location getTargetLocation(Player player, LivingEntity entity) {
+        return getTargetLocation(player, entity, 50);
+    }
+
+    public Location getTargetLocation(Player player, LivingEntity entity, int length) {
+        if (entity != null)
+            return entity.getLocation();
+
+        Location loc = player.getTargetBlock((Set<Material>) null, length).getLocation();
+        return loc.getBlock().getType() == Material.AIR ? null : loc.add(.5, 1, .5);
+    }
+
     public Vector getTargetDirection(Player player, LivingEntity target) {
         return target == null ? player.getEyeLocation().getDirection() : target.getLocation().add(0, 1, 0).subtract(player.getLocation().add(0, 1.3, 0)).toVector().normalize();
     }
@@ -211,13 +225,13 @@ public class AbilityUtil {
             public void run() {
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.BLUE + "-" + masterAbility.getCoolDown() + " Cooldown " + ChatColor.GOLD + "[" + masterAbility.getName() + "]"));
             }
-        }.runTaskTimer(Main.getInstance(), 0L, 20L);
+        }.runTaskTimer(GameMain.getInstance(), 0L, 20L);
         new BukkitRunnable() {
             @Override
             public void run() {
                 t.cancel();
             }
-        }.runTaskLaterAsynchronously(Main.getInstance(), 20L);
+        }.runTaskLaterAsynchronously(GameMain.getInstance(), 20L);
 
     }
 

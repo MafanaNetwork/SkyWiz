@@ -1,6 +1,7 @@
 package me.TahaCheji.chestData;
 
 import me.TahaCheji.itemData.MasterItems;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Random;
@@ -9,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class LootItem {
 
 
-    private final ItemStack itemStack;
+    private ItemStack itemStack;
 
     private final double chance;
 

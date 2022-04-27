@@ -1,10 +1,9 @@
 package me.TahaCheji.chestData;
 
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,8 +11,6 @@ import org.bukkit.block.Chest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -86,7 +83,7 @@ public class ChestGUI  implements Listener {
             fill(gui, new PlayerBoostItems().getPlayerBoostItems());
         }
         this.gui = gui;
-        Main.getChestGui().put(chest, gui.getInventory());
+        GameMain.getChestGui().put(chest, gui.getInventory());
         return gui;
     }
 

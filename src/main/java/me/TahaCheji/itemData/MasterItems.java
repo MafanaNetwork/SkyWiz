@@ -1,6 +1,6 @@
 package me.TahaCheji.itemData;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.util.ItemUtil;
 import me.TahaCheji.util.NBTUtils;
@@ -34,7 +34,7 @@ public abstract class MasterItems {
     private MasterAbility masterAbility;
     private final List<String> lore;
     private boolean oneTimeUse;
-    private int UUID;
+    private final int UUID;
 
 
     public MasterItems(GamePlayer gamePlayer, String name, Material itemMaterial, ItemType itemType, RarityType rarityType, boolean glow, MasterAbility masterAbility, boolean oneTimeUse, String... lore) {
@@ -104,7 +104,7 @@ public abstract class MasterItems {
         item = NBTUtils.setString(item, "ItemType", itemType.getLore());
         item = NBTUtils.setString(item, "ItemRarity", rarityType.getLore());
         if (masterAbility != null) {
-            item = NBTUtils.setInt(item, "CoolDown", masterAbility.getCoolDown());
+            item = NBTUtils.setDouble(item, "CoolDown", masterAbility.getCoolDown());
             item = NBTUtils.setString(item, "AbilityName", masterAbility.getName());
             item = NBTUtils.setInt(item, "AbilityDamage", masterAbility.getAbilityDamage());
         }
@@ -129,8 +129,8 @@ public abstract class MasterItems {
     }
 
     public void registerItem() {
-        Main.allItems.add(this);
-        Main.putItem(name, this);
+        GameMain.allItems.add(this);
+        GameMain.putItem(name, this);
         System.out.println("Registered " + name);
     }
 

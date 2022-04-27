@@ -4,7 +4,7 @@ import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.gameData.GamePlayer;
 import me.TahaCheji.util.ItemUtil;
 import net.kyori.adventure.text.Component;
@@ -67,7 +67,7 @@ public class ItemGui implements Listener {
         gui.setItem(6, 3, ItemBuilder.from(Material.PAPER).setName(ChatColor.DARK_GRAY + "Previous").asGuiItem(event -> gui.previous()));
         gui.setItem(6, 7, ItemBuilder.from(Material.PAPER).setName(ChatColor.DARK_GRAY + "Next").asGuiItem(event -> gui.next()));
 
-        for(MasterItems masterItems : Main.allItems) {
+        for(MasterItems masterItems : GameMain.allItems) {
             masterItems.setGamePlayer(gamePlayer);
             masterItems.getMasterAbility().setAbilityDamage((int) (masterItems.getMasterAbility().getAbilityDamage()));
             ItemStack itemStack = masterItems.getItem();

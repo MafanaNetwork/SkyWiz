@@ -1,8 +1,6 @@
 package me.TahaCheji.gameData;
 
-import me.TahaCheji.Main;
-import me.TahaCheji.gameData.Game;
-import me.TahaCheji.gameData.GameMode;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.mapUtil.GameMap;
 import me.TahaCheji.mapUtil.LocalGameMap;
 import org.bukkit.Bukkit;
@@ -13,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,15 +26,33 @@ public class GameData {
             pD.set("data.gameIcon", game.getGameIcon());
             pD.set("data.gameMode", game.getGameMode().toString());
             pD.set("data.gameMap", game.getMap().getName());
-
-            pD.set("p1Spawn.location", location);
-            pD.set("p2Spawn.location", location);
-            pD.set("p3Spawn.location", location);
-            pD.set("p4Spawn.location", location);
-
+            if (game.getGamePlayerToSpawnPoint().size() != 0) {
+                for (int i = 0; i < game.getMaxPlayers(); i++) {
+                    if (game.getPlayerSpawnLocations().get(i) == null) {
+                        continue;
+                    }
+                    pD.set("p" + i + "spawn.location", game.getPlayerSpawnLocations().get(i));
+                }
+            } else {
+                for (int i = 0; i < game.getMaxPlayers(); i++) {
+                    pD.set("p" + i + "spawn.location", location);
+                }
+            }
             pD.set("lobby.x", 0);
             pD.set("lobby.y", 0);
             pD.set("lobby.z", 0);
+
+            pD.set("maxPlayers.players", game.getMaxPlayers());
+            pD.save(gameData);
+        } else {
+            Location location = new Location(game.getMap().getWorld(), 0, 0, 0);
+            for (int i = 0; i < game.getMaxPlayers(); i++) {
+                if (game.getPlayerSpawnLocations().get(i) == null) {
+                    pD.set("p" + i + "spawn.location", location);
+                }
+                System.out.println(1);
+                pD.set("p" + i + "spawn.location", game.getPlayerSpawnLocations().get(i));
+            }
             pD.save(gameData);
         }
     }
@@ -52,18 +67,15 @@ public class GameData {
             ItemStack material = pD.getItemStack("data.gameIcon");
             //gameMode
             File gameMapsFolder = new File("plugins/SkyWiz/", "maps");
-            Location p1Location = pD.getLocation("p1Spawn.location");
-            Location p2Location = pD.getLocation("p2Spawn.location");
-            Location p3Location = pD.getLocation("p3Spawn.location");
-            Location p4Location = pD.getLocation("p4Spawn.location");
+
+
             Location lobbySpawn = new Location(Bukkit.getWorld("world"), pD.getInt("lobby.x"), pD.getInt("lobby.y"), pD.getInt("lobby.z"));
             GameMap gameMap = new LocalGameMap(gameMapsFolder, pD.getString("data.gameMap"), false);
-            Game game = new Game(gameName, material, GameMode.NORMAL, gameMap);
+            Game game = new Game(gameName, material, GameMode.NORMAL, gameMap, pD.getInt("maxPlayers.players"));
             List<Location> locations = new ArrayList<>();
-            locations.add(p1Location);
-            locations.add(p2Location);
-            locations.add(p3Location);
-            locations.add(p4Location);
+            for (int i = 0; i < pD.getInt("maxPlayers.players"); i++) {
+                locations.add(pD.getLocation("p" + i + "spawn.location"));
+            }
             game.setPlayerSpawnLocations(locations);
             game.setLobbySpawn(lobbySpawn);
             arrayList.add(game);
@@ -82,7 +94,7 @@ public class GameData {
     }
 
     public static void removeGame(String gameName) {
-        File dataFolder = new File(Main.getInstance().getDataFolder(), "games");
+        File dataFolder = new File(GameMain.getInstance().getDataFolder(), "games");
         File[] files = dataFolder.listFiles();
         for (File file : files) {
             if (file.getName().contains(gameName)) {

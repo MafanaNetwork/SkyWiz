@@ -1,14 +1,15 @@
 package me.TahaCheji.gameData;
 
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.chestData.EpicItems;
 import me.TahaCheji.chestData.LootItem;
 import me.TahaCheji.chestData.NormalItems;
 import me.TahaCheji.chestData.PlayerBoostItems;
 import me.TahaCheji.lobbyData.Lobby;
 import me.TahaCheji.mapUtil.GameMap;
-import me.TahaCheji.scoreboards.InGameScoreBoard;
+import me.TahaCheji.scoreboards.ActiveGameScoreBoard;
+import me.TahaCheji.scoreboards.InGameLobbyScoreBoard;
 import me.TahaCheji.scoreboards.LobbyScoreBoard;
 import me.TahaCheji.tasks.GameCountdownTask;
 import org.bukkit.Bukkit;
@@ -33,6 +34,7 @@ public class Game implements GameManager {
     private final GameMode gameMode;
     private final GameMap map;
     private Location lobbySpawn;
+    private int maxPlayers;
 
     private GameState gameState = GameState.LOBBY;
     private boolean movementFrozen = false;
@@ -43,33 +45,36 @@ public class Game implements GameManager {
 
     private Set<Chest> opened = new HashSet<>();
 
-    public InGameScoreBoard inGameScoreBoard = new InGameScoreBoard();
+    public InGameLobbyScoreBoard inGameLobbyScoreBoard = new InGameLobbyScoreBoard();
+    public ActiveGameScoreBoard activeGameScoreBoard = new ActiveGameScoreBoard();
     public GameCountdownTask gameCountdownTask = null;
+    private boolean canJoin = true;
+    private Set<GamePlayer> spectators = new HashSet<>();
 
-    public Game(String name, ItemStack gameIcon, GameMode gameMode, GameMap map, List<Location> playerSpawnLocations, Location lobbySpawn) {
+    public Game(String name, ItemStack gameIcon, GameMode gameMode, GameMap map, List<Location> playerSpawnLocations, Location lobbySpawn, int maxPlayers) {
         this.name = name;
         this.gameIcon = gameIcon;
         this.gameMode = gameMode;
         this.map = map;
         this.playerSpawnLocations = playerSpawnLocations;
         this.lobbySpawn = lobbySpawn;
+        this.maxPlayers = maxPlayers;
     }
 
-    public Game(String name, ItemStack gameIcon, GameMode gameMode, GameMap map) {
+    public Game(String name, ItemStack gameIcon, GameMode gameMode, GameMap map, int maxPlayers) {
         this.name = name;
         this.gameIcon = gameIcon;
         this.gameMode = gameMode;
         this.map = map;
+        this.maxPlayers = maxPlayers;
     }
 
 
     @Override
     public void playerJoin(GamePlayer gamePlayer) {
-        if (isState(GameState.LOBBY) || isState(GameState.ACTIVE)) {
-            if (activePlayers.size() == 4) {
-                gamePlayer.sendMessage(ChatColor.GOLD + "[Game Manager] " + "Error: This game is active.");
-                return;
-            }
+        if (!canJoin) {
+            gamePlayer.sendMessage(ChatColor.GOLD + "[Game Manager] " + "Error: This game is active.");
+            return;
         }
         if (!map.isLoaded()) {
             map.load();
@@ -79,27 +84,25 @@ public class Game implements GameManager {
             }
             lobbySpawn.setWorld(world);
         }
-        if (Main.getInstance().isInGame(gamePlayer.getPlayer())) {
+        if (GameMain.getInstance().isInGame(gamePlayer.getPlayer())) {
             gamePlayer.sendMessage(ChatColor.RED + "[Game Manager] " + "You are already in a game");
             return;
         }
         activePlayers.add(gamePlayer);
         players.add(gamePlayer);
-        gamePlayer.sendMessage(ChatColor.GOLD + "[Game Manager] " + "[" + activePlayers.size() + "/" + "4" + "]");
+        gamePlayer.sendMessage(ChatColor.GOLD + "[Game Manager] " + "[" + activePlayers.size() + "/" + maxPlayers + "]");
         gamePlayer.setPlayerLocation(PlayerLocation.GAMELOBBY);
         gamePlayer.getPlayer().getInventory().clear();
         gamePlayer.getPlayer().getInventory().setArmorContents(null);
         gamePlayer.getPlayer().setGameMode(org.bukkit.GameMode.ADVENTURE);
         gamePlayer.getPlayer().setHealth(gamePlayer.getPlayer().getMaxHealth());
         gamePlayer.teleport(lobbySpawn);
-        Main.getInstance().setGame(gamePlayer.getPlayer(), this);
-        inGameScoreBoard.setGameScoreboard(gamePlayer);
+        GameMain.getInstance().setGame(gamePlayer.getPlayer(), this);
+        inGameLobbyScoreBoard.setGameScoreboard(gamePlayer);
         setState(GameState.LOBBY);
-        if (activePlayers.size() == 2 && !isState(GameState.STARTING)) {
-            setState(GameState.STARTING);
-            inGameScoreBoard.updateScoreBoard(this);
+        if (activePlayers.size() == 2) {
             sendMessage(ChatColor.GOLD + "[Game Manager] " + "The game will begin in 20 seconds...");
-            Main.getInstance().addActiveGame(this);
+            GameMain.getInstance().addActiveGame(this);
             start();
             startCountDown();
         }
@@ -121,42 +124,50 @@ public class Game implements GameManager {
 
     public void adminStart() {
         setState(GameState.STARTING);
-        inGameScoreBoard.updateScoreBoard(this);
         sendMessage(ChatColor.GOLD + "[Game Manager] " + "The game will begin in 20 seconds...");
-        Main.getInstance().addActiveGame(this);
+        GameMain.getInstance().addActiveGame(this);
         start();
         startCountDown();
     }
 
     @Override
     public void end() {
-        if (inGameScoreBoard != null) {
-            inGameScoreBoard.stopUpdating();
+        if (inGameLobbyScoreBoard != null) {
+            inGameLobbyScoreBoard.stopUpdating();
         }
         if (gameCountdownTask != null) {
             gameCountdownTask.getGameRunTask().getGameTask().setGameTimer(getGameTime());
             gameCountdownTask.getGameRunTask().getGameTask().cancel();
         }
-        for (GamePlayer gamePlayer : players) {
+        if(activeGameScoreBoard != null) {
+            activeGameScoreBoard.stopUpdating();
+        }
+        for (GamePlayer gamePlayer : getGamePlayers()) {
+            gamePlayer.setKills(0);
             Player player = gamePlayer.getPlayer();
-            player.sendMessage(ChatColor.GOLD + "[Game Manager] " + "Game has ended");
-            gamePlayer.teleport(new Lobby().getLobbyPoint());
+            Bukkit.getScheduler().scheduleSyncDelayedTask(GameMain.getInstance(), new Runnable() {
+                @Override
+                public void run() {
+                    gamePlayer.teleport(new Lobby().getLobbyPoint());
+                    gamePlayer.getPlayer().setGameMode(org.bukkit.GameMode.SURVIVAL);
+                }
+            }, 20L * 10); //20 Tick (1 Second) delay before run() is called
             player.getInventory().clear();
             player.getInventory().setArmorContents(null);
             player.setHealth(20);
             gamePlayer.setPlayerLocation(PlayerLocation.LOBBY);
-            Main.getInstance().playerGameMap.remove(player.getPlayer(), this);
+            GameMain.getInstance().playerGameMap.remove(player.getPlayer(), this);
             LobbyScoreBoard lobbyScoreBoard = new LobbyScoreBoard();
             lobbyScoreBoard.setLobbyScoreBoard(gamePlayer);
             lobbyScoreBoard.updateScoreBoard(gamePlayer);
             player.removePotionEffect(PotionEffectType.SPEED);
         }
-        Main.getInstance().getGames().remove(this);
+        GameMain.getInstance().getGames().remove(this);
         resetGameInfo();
-        Main.getInstance().getGames().add(this);
-        Main.getInstance().removeActiveGame(this);
+        GameMain.getInstance().getGames().add(this);
+        GameMain.getInstance().removeActiveGame(this);
         for (Chest chest : opened) {
-            Main.getChestGui().remove(chest);
+            GameMain.getChestGui().remove(chest);
         }
     }
 
@@ -168,7 +179,7 @@ public class Game implements GameManager {
     @Override
     public void playerLeave(GamePlayer gamePlayer) {
         Player player = gamePlayer.getPlayer();
-        if (!Main.getInstance().isInGame(player)) {
+        if (!GameMain.getInstance().isInGame(player)) {
             return;
         }
         if (isState(GameState.ACTIVE)) {
@@ -183,37 +194,59 @@ public class Game implements GameManager {
     public void resetGameInfo() {
         getPlayers().clear();
         gameTime = 450;
-        inGameScoreBoard = new InGameScoreBoard();
+        inGameLobbyScoreBoard = new InGameLobbyScoreBoard();
         map.unload();
+        canJoin = true;
     }
 
     @Override
     public void setWinner(GamePlayer gamePlayer) {
-        gamePlayer.getPlayer().sendMessage(ChatColor.GOLD + gamePlayer.getPlayer().getName() + " has won the game");
+        Bukkit.broadcastMessage(ChatColor.GOLD + gamePlayer.getPlayer().getName() + " has won the game");
         end();
     }
 
     @Override
     public void assignSpawnPositions() {
         int id = 0;
+        setState(GameState.STARTING);
+        canJoin = false;
         for (GamePlayer gamePlayer : getPlayers()) {
             gamePlayerToSpawnPoint.put(gamePlayer, playerSpawnLocations.get(id));
             gamePlayer.teleport(playerSpawnLocations.get(id));
             gamePlayer.setPlayerLocation(PlayerLocation.GAME);
+            inGameLobbyScoreBoard.stopUpdating();
+            activeGameScoreBoard.setGameScoreboard(gamePlayer);
+            activeGameScoreBoard.updateScoreBoard(this);
             id += 1;
             gamePlayer.getPlayer().setGameMode(org.bukkit.GameMode.SURVIVAL);
             gamePlayer.getPlayer().setHealth(gamePlayer.getPlayer().getMaxHealth());
         }
     }
 
+    public void activateSpectatorSettings(Player player) {
+        GamePlayer gamePlayer = getGamePlayer(player);
+
+        player.setMaxHealth(20);
+        player.setHealth(player.getMaxHealth());
+        player.setGameMode(org.bukkit.GameMode.SPECTATOR);
+
+        if (gamePlayer != null) {
+            switchToSpectator(gamePlayer);
+        }
+    }
+
     @Override
     public void startCountDown() {
         gameCountdownTask = new GameCountdownTask(this);
-        gameCountdownTask.runTaskTimer(Main.getInstance(), 0, 20);
+        gameCountdownTask.runTaskTimer(GameMain.getInstance(), 0, 20);
     }
 
     public List<GamePlayer> getPlayers() {
         return activePlayers;
+    }
+
+    public List<GamePlayer> getGamePlayers() {
+        return players;
     }
 
     public boolean isState(GameState state) {
@@ -230,8 +263,16 @@ public class Game implements GameManager {
         }
     }
 
+    public List<Location> getPlayerSpawnLocations() {
+        return playerSpawnLocations;
+    }
+
     public void setPlayerSpawnLocations(List<Location> playerSpawnLocations) {
         this.playerSpawnLocations = playerSpawnLocations;
+    }
+
+    public Map<GamePlayer, Location> getGamePlayerToSpawnPoint() {
+        return gamePlayerToSpawnPoint;
     }
 
     public GamePlayer getGamePlayer(Player player) {
@@ -241,6 +282,15 @@ public class Game implements GameManager {
             }
         }
         return null;
+    }
+
+    public Set<GamePlayer> getSpectators() {
+        return spectators;
+    }
+
+    public void switchToSpectator(GamePlayer gamePlayer) {
+        getPlayers().remove(gamePlayer);
+        getSpectators().add(gamePlayer);
     }
 
     public Set<Chest> getOpened() {
@@ -294,6 +344,10 @@ public class Game implements GameManager {
 
     public int getGameTime() {
         return gameTime;
+    }
+
+    public int getMaxPlayers() {
+        return maxPlayers;
     }
 
     public List<GamePlayer> getActivePlayers() {

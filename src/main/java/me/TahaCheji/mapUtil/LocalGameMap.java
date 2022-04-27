@@ -1,6 +1,6 @@
 package me.TahaCheji.mapUtil;
 
-import me.TahaCheji.Main;
+import me.TahaCheji.GameMain;
 import me.TahaCheji.util.FileUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -41,7 +41,7 @@ public class LocalGameMap implements GameMap {
             this.bukkitWorld.setAutoSave(false);
 
         }
-        Main.activeMaps.add(this);
+        GameMain.activeMaps.add(this);
         return isLoaded();
     }
 
@@ -52,14 +52,14 @@ public class LocalGameMap implements GameMap {
         isLoaded = false;
         bukkitWorld = null;
         activeWorldFolder = null;
-        Main.activeMaps.remove(this);
+        GameMain.activeMaps.remove(this);
     }
 
     @Override
     public void saveMap() {
         try {
             if(bukkitWorld != null) Bukkit.unloadWorld(bukkitWorld, true);
-            Main.activeMaps.remove(this);
+            GameMain.activeMaps.remove(this);
             FileUtil.copyFolder(activeWorldFolder, new File(sourceWorldFolder.getParentFile().getPath(), sourceWorldFolder.getName()));
         } catch (IOException e) {
             e.printStackTrace();
